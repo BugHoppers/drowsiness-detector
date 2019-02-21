@@ -52,15 +52,36 @@ def eyesCrop(imgFrame):
     l_lowY = max(leftEye[4:,1])
     l_difY = abs(l_upperY - l_lowY)
 
+    r_upperY = min(rightEye[1:3,1])
+    r_lowY = max(rightEye[4:,1])
+    r_difY = abs(r_upperY - r_lowY)
+
     lw = (leftEye[3][0] - leftEye[0][0])
+    rw = (rightEye[3][0] - rightEye[0][0])
 
     minxl = (leftEye[0][0] - ((34-lw)/2))
     maxxl = (leftEye[3][0] + ((34-lw)/2)) 
     minyl = (l_upperY - ((26-l_difY)/2))
     maxyl = (l_lowY + ((26-l_difY)/2))
 
+    minxr = (rightEye[0][0]-((34-rw)/2))
+    maxxr = (rightEye[3][0] + ((34-rw)/2))
+    minyr = (r_upperY - ((26-r_difY)/2))
+    maxyr = (r_lowY + ((26-r_difY)/2))
+
     rect_left_eye = np.rint([minxl, minyl, maxxl, maxyl])
     rect_left_eye = rect_left_eye.astype(int)
     image_left_eye = grayImg[(rect_left_eye[1]):rect_left_eye[3], (rect_left_eye[0]):rect_left_eye[2]]
 
+    rect_right_eye = np.rint([minxr, minyr, maxxr, maxyr])
+    rect_right_eye = rect_right_eye.astype(int)
+    image_right_eye = grayImg[rect_right_eye[1]:rect_right_eye[3], rect_right_eye[0]:rect_right_eye[2]]
 
+    if 0 in image_left_eye.shape or 0 in image_right_eye.shape:
+        return None
+    
+    image_left_eye = cv2.resize(image_left_eye, (34,26))
+    image_right_eye = cv2.resize(image_right_eye, (34,26))
+    image_right_eye = cv2.flip(image_right_eye, 1)
+
+    return image_left_eye, image_right_eye
