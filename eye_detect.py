@@ -6,14 +6,14 @@ from imutils import face_utils
 # Function for detecting face from image and return the co-ordinates
 
 
-def detectFace(img):
+def detectFace(img, minimumFeatureSize=(20, 20)):
     face = cv2.CascadeClassifier('assets/haarcascade_frontalface_alt.xml')
 
     if face.empty():
         return []
 
     f_points = face.detectMultiScale(
-        img, scaleFactor=1.3, minNeighbors=1, minSize=(20, 20))
+        img, scaleFactor=1.3, minNeighbors=1, minSize=minimumFeatureSize)
 
     if len(f_points) == 0:
         return []
@@ -23,7 +23,7 @@ def detectFace(img):
 
 
 def eyesCrop(imgFrame):
-    predictor = dlib.shape_predictor("shape_predictor_68_face_landmarks.dat")
+    predictor = dlib.shape_predictor("assets/shape_predictor_68_face_landmarks.dat")
 
     # convert image to grayscale
     grayImg = cv2.cvtColor(imgFrame, cv2.COLOR_BGR2GRAY)
