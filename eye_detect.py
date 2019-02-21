@@ -7,7 +7,7 @@ from imutils import face_utils
 
 
 def detectFace(img):
-    face = cv2.CascadeClassifier('haarcascade_frontalface_alt.xml')
+    face = cv2.CascadeClassifier('assets/haarcascade_frontalface_alt.xml')
 
     if face.empty():
         return []
@@ -25,8 +25,10 @@ def detectFace(img):
 def eyesCrop(imgFrame):
     predictor = dlib.shape_predictor("shape_predictor_68_face_landmarks.dat")
 
+    # convert image to grayscale
     grayImg = cv2.cvtColor(imgFrame, cv2.COLOR_BGR2GRAY)
 
+    # detect face from grayscale image
     faceList = detectFace(grayImg, minimumFeatureSize=(80, 80))
 
     if(len(faceList)) == 0:
@@ -36,18 +38,23 @@ def eyesCrop(imgFrame):
     elif(len(faceList)) > 1:
         face = faceList[0]
 
+    # extract the region of face from frame
     rect_face = dlib.rectangle(left = int(face[0]), top = int(face[1]),
 							    right = int(face[2]), bottom = int(face[3]))
 
+    # determine facial landmarks for the face region
     face_shape = predictor(grayImg, rect_face)
     face_shape = face_utils.shape_to_np(face_shape)
 
+    #  grab indexes of facial landmarks for the left and right eye
     (rBegin, rEnd) = face_utils.FACIAL_LANDMARKS_IDXS["left_eye"]
     (lBegin, lEnd) = face_utils.FACIAL_LANDMARKS_IDXS["right_eye"]
 
+    # extract left and right eye coordinates
     leftEye = face_shape[lBegin:lEnd]
     rightEye = face_shape[rBegin:rEnd]
 
+    # keep the upper and the lower limit of the eyes and calculate height 
     l_upperY = min(leftEye[1:3,1])
     l_lowY = max(leftEye[4:,1])
     l_difY = abs(l_upperY - l_lowY)
@@ -56,6 +63,7 @@ def eyesCrop(imgFrame):
     r_lowY = max(rightEye[4:,1])
     r_difY = abs(r_upperY - r_lowY)
 
+    # calculate width of the eyes
     lw = (leftEye[3][0] - leftEye[0][0])
     rw = (rightEye[3][0] - rightEye[0][0])
 
@@ -69,6 +77,7 @@ def eyesCrop(imgFrame):
     minyr = (r_upperY - ((26-r_difY)/2))
     maxyr = (r_lowY + ((26-r_difY)/2))
 
+    # crop eye rectangless from the frame
     rect_left_eye = np.rint([minxl, minyl, maxxl, maxyl])
     rect_left_eye = rect_left_eye.astype(int)
     image_left_eye = grayImg[(rect_left_eye[1]):rect_left_eye[3], (rect_left_eye[0]):rect_left_eye[2]]
