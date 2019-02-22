@@ -1,6 +1,7 @@
 import keras
 from keras.models import Sequential
 from keras.layers import Conv2D, Activation, MaxPooling2D, Dropout, Flatten, Dense
+from keras.preprocessing.image import ImageDataGenerator
 
 
 def model():
@@ -24,3 +25,13 @@ def model():
     model.compile(optiimizer='adam', loss='binary_crossentropy',
                   metrics=['accuracy'])
     return model
+
+
+def preprocessData(dir):
+    datagen = ImageDataGenerator(rescale=1./255)
+    data_generator = datagen.flow_from_directory(dir,
+                                                 target_size=(24, 24),
+                                                 batch_size=32,
+                                                 class_mode='binary')
+    
+    return data_generator
