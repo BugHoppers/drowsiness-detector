@@ -89,8 +89,8 @@ def eyesCrop(imgFrame):
     if 0 in image_left_eye.shape or 0 in image_right_eye.shape:
         return None
     
-    image_left_eye = cv2.resize(image_left_eye, (34,26))
-    image_right_eye = cv2.resize(image_right_eye, (34,26))
+    image_left_eye = cv2.resize(image_left_eye, (24,24))
+    image_right_eye = cv2.resize(image_right_eye, (24,24))
     image_right_eye = cv2.flip(image_right_eye, 1)
 
     return image_left_eye, image_right_eye
