@@ -1,10 +1,11 @@
 import keras
+import numpy as np
 from keras.models import Sequential
 from keras.layers import Conv2D, Activation, MaxPooling2D, Dropout, Flatten, Dense
 from keras.preprocessing.image import ImageDataGenerator
 
 
-def bulidModel():
+def buildModel():
     model = Sequential()
     model.add(Conv2D(32, (3, 3), activation='relu',
                      padding='same', input_shape=(24, 24, 1)))
@@ -43,9 +44,16 @@ def trainModel(model):
     model.fit_generator(datagen, steps_per_epoch=len(datagen)/32, epochs=50)
     model.save('eyeblink.hdf5')
 
+# manipulate the image so as to have the same format as at training 
+def cnnPreprocess(img):
+	img = img.astype('float32')
+	img /= 255
+	img = np.expand_dims(img, axis=2)
+	img = np.expand_dims(img, axis=0)
+	return img
 
 def main():
-    model = bulidModel()
+    model = buildModel()
     trainModel(model)
 
 
