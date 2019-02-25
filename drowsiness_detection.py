@@ -2,6 +2,7 @@ import cv2
 from eye_detect import eyesCrop
 from keras.models import load_model
 from model import cnnPreprocess
+from imutils import resize
 
 def main():
     cam = cv2.VideoCapture(0)
@@ -15,6 +16,7 @@ def main():
 
     while True:
         _, frame = cam.read()
+        frame = resize(frame, 400)
 
         # f_points = detectFace(frame)
         # print(f_points, sep='\n')
