@@ -1,96 +1,29 @@
 import cv2
-import dlib
-import numpy as np
-from imutils import face_utils
 
-# Function for detecting face from image and return the co-ordinates
+def eyesCrop(img):
+    face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + '/haarcascade_frontalface_default.xml')
+    eye_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + '/haarcascade_eye_tree_eyeglasses.xml')
+    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    faces = face_cascade.detectMultiScale(gray, 1.3, 5)
 
+    for (x,y,w,h) in faces:
+        cv2.rectangle(img,(x,y),(x+w,y+h),(255,0,0),2)
+        roi_gray = gray[y:y+h, x:x+w]
+        
+        eyes = eye_cascade.detectMultiScale(roi_gray)
+        if len(eyes) == 0:
+            return None
+        elif len(eyes) == 1 :
+            ex,ey,ew,eh = eyes[0]
+            eye = roi_gray[ey:ey+eh, ex:ex+ew]
+            eye = cv2.resize(eye, dsize=(24, 24), interpolation=cv2.INTER_CUBIC)
+            return eye, None
+        else :
+            ex,ey,ew,eh = eyes[0]
+            eye1 = roi_gray[ey:ey+eh, ex:ex+ew]
+            eye1 = cv2.resize(eye1, dsize=(24, 24), interpolation=cv2.INTER_CUBIC)
+            ex,ey,ew,eh = eyes[1]
+            eye2 = roi_gray[ey:ey+eh, ex:ex+ew]
+            eye2 = cv2.resize(eye2, dsize=(24, 24), interpolation=cv2.INTER_CUBIC)
 
-def detectFace(img, minimumFeatureSize=(20, 20)):
-    face = cv2.CascadeClassifier('assets/haarcascade_frontalface_alt.xml')
-
-    if face.empty():
-        return []
-
-    f_points = face.detectMultiScale(
-        img, scaleFactor=1.3, minNeighbors=1, minSize=minimumFeatureSize)
-
-    if len(f_points) == 0:
-        return []
-
-    f_points[:, 2:] += f_points[:, :2]
-    return f_points
-
-
-def eyesCrop(imgFrame):
-    predictor = dlib.shape_predictor("assets/shape_predictor_68_face_landmarks.dat")
-
-    # convert image to grayscale
-    grayImg = cv2.cvtColor(imgFrame, cv2.COLOR_BGR2GRAY)
-
-    # detect face from grayscale image
-    faceList = detectFace(grayImg, minimumFeatureSize=(80, 80))
-
-    if(len(faceList)) == 0:
-        return None
-    elif(len(faceList)) == 1:
-        [face] = faceList
-    elif(len(faceList)) > 1:
-        face = faceList[0]
-
-    # extract the region of face from frame
-    rect_face = dlib.rectangle(left = int(face[0]), top = int(face[1]),
-							    right = int(face[2]), bottom = int(face[3]))
-
-    # determine facial landmarks for the face region
-    face_shape = predictor(grayImg, rect_face)
-    face_shape = face_utils.shape_to_np(face_shape)
-
-    #  grab indexes of facial landmarks for the left and right eye
-    (rBegin, rEnd) = face_utils.FACIAL_LANDMARKS_IDXS["left_eye"]
-    (lBegin, lEnd) = face_utils.FACIAL_LANDMARKS_IDXS["right_eye"]
-
-    # extract left and right eye coordinates
-    leftEye = face_shape[lBegin:lEnd]
-    rightEye = face_shape[rBegin:rEnd]
-
-    # keep the upper and the lower limit of the eyes and calculate height 
-    l_upperY = min(leftEye[1:3,1])
-    l_lowY = max(leftEye[4:,1])
-    l_difY = abs(l_upperY - l_lowY)
-
-    r_upperY = min(rightEye[1:3,1])
-    r_lowY = max(rightEye[4:,1])
-    r_difY = abs(r_upperY - r_lowY)
-
-    # calculate width of the eyes
-    lw = (leftEye[3][0] - leftEye[0][0])
-    rw = (rightEye[3][0] - rightEye[0][0])
-
-    minxl = (leftEye[0][0] - ((34-lw)/2))
-    maxxl = (leftEye[3][0] + ((34-lw)/2)) 
-    minyl = (l_upperY - ((26-l_difY)/2))
-    maxyl = (l_lowY + ((26-l_difY)/2))
-
-    minxr = (rightEye[0][0]-((34-rw)/2))
-    maxxr = (rightEye[3][0] + ((34-rw)/2))
-    minyr = (r_upperY - ((26-r_difY)/2))
-    maxyr = (r_lowY + ((26-r_difY)/2))
-
-    # crop eye rectangless from the frame
-    rect_left_eye = np.rint([minxl, minyl, maxxl, maxyl])
-    rect_left_eye = rect_left_eye.astype(int)
-    image_left_eye = grayImg[(rect_left_eye[1]):rect_left_eye[3], (rect_left_eye[0]):rect_left_eye[2]]
-
-    rect_right_eye = np.rint([minxr, minyr, maxxr, maxyr])
-    rect_right_eye = rect_right_eye.astype(int)
-    image_right_eye = grayImg[rect_right_eye[1]:rect_right_eye[3], rect_right_eye[0]:rect_right_eye[2]]
-
-    if 0 in image_left_eye.shape or 0 in image_right_eye.shape:
-        return None
-    
-    image_left_eye = cv2.resize(image_left_eye, (24,24))
-    image_right_eye = cv2.resize(image_right_eye, (24,24))
-    image_right_eye = cv2.flip(image_right_eye, 1)
-
-    return image_left_eye, image_right_eye
+            return eye1, eye2
