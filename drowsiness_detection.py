@@ -23,11 +23,11 @@ def main():
             eye1, eye2 = eyes
 
         if eye2 is None:
-            cv2.imshow('Eye1', eye1)
+            # cv2.imshow('Eye1', eye1)
             prediction = model.predict(cnnPreprocess(eye1))
 
         else:
-            cv2.imshow('Eye2', eye2)
+            # cv2.imshow('Eye2', eye2)
             prediction = (model.predict(cnnPreprocess(eye1)) +
                           model.predict(cnnPreprocess(eye2)))/2.0
 
@@ -38,14 +38,14 @@ def main():
             state = 'Closed'
             close_count += 1
 
-        cv2.putText(frame, "Blinks: {}".format(close_count), (10, 30),
+        cv2.putText(frame, "Eye Close Timer: {}".format(close_count), (10, 30),
                     cv2.FONT_HERSHEY_COMPLEX_SMALL, 0.7, (0, 0, 255), 2)
         cv2.putText(frame, "Eyes: {}".format(state), (300, 30),
                     cv2.FONT_HERSHEY_COMPLEX_SMALL, 0.7, (0, 0, 255), 2)
 
-        if close_count > 10:
-            cv2.putText(frame, "ALERT", (100, 50),
-                        cv2.FONT_HERSHEY_COMPLEX_SMALL, 0.7, (0, 0, 255), 2)
+        if close_count > 3:
+            cv2.putText(frame, "YOU ARE DROWSY!", (100, 50),
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
 
         cv2.imshow('Drowsiness Detector', frame)
 
