@@ -7,6 +7,7 @@ An application to detect drowsiness of drivers and alert them.
 - Python 3.6 +
 - Keras
 - OpenCV
+- imutils
 
 
 ### Training the Model
@@ -21,6 +22,16 @@ The trained model is saved as 'eyeblink.hdf5'
 
 * NOTE - The model is trained with the Eye images(24x24) of [Closed Eyes In The Wild (CEW) dataset](http://parnec.nuaa.edu.cn/xtan/data/ClosedEyeDatabases.html)
 
+### Running the Application
+
+Run -
+
+```
+    $ python3 drowsiness_detection.py
+```
+### Working Example
+
+![Demo](assets/demo.gif)
 
 ### Future Implementation
 
